@@ -30,4 +30,4 @@ after_success:
   - docker push udagram-api-user:v1
   - docker push udagram-frontend:v1
   - docker push reverseproxy:v1
-  - echo "Done"
+  - echo "Done "
