@@ -2,26 +2,29 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: backend-feed
+  labels:
+    app: backend-feed
 spec:
   selector:
     matchLabels:
-      run: backend-feed
+      app: backend-feed
   replicas: 2
   template:
     metadata:
       labels:
-        run: backend-feed
+        app: backend-feed
     spec:
       containers:
-      - name: backend-feed
-        image: docker.io/ohansck/udagram-api-feed:v4
-        ports:
-        - containerPort: 80
-        resources:
-          limits:
-            cpu: 500m
-          requests:
-            cpu: 200m
+        - name: backend-feed
+          image: docker.io/ohansck/udagram-api-feed:v4
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - secretRef:
+                name: env-secret
+            - configMapRef:
+                name: env-configmap
 
 ---
 apiVersion: v1
@@ -32,8 +35,8 @@ metadata:
   name: backend-feed
 spec:
   ports:
-  - name: "8080"
-    port: 8080
-    targetPort: 8080
+    - name: "8080"
+      port: 8080
+      targetPort: 8080
   selector:
     service: backend-feed
