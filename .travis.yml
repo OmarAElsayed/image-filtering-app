@@ -21,4 +21,4 @@ script:
   - docker push ohansck/udagram-frontend:f1
 
 after_success:
-  - echo "Done "
+  - echo "Done"
