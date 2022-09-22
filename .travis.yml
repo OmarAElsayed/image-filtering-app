@@ -21,4 +21,4 @@ script:
   - docker push ohansck/reverseproxy:v4
 
 after_success:
-  - echo "Done "
+  - echo "Done"
