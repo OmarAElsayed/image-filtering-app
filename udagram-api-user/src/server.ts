@@ -3,7 +3,7 @@ import express from 'express';
 import { sequelize } from './sequelize';
 
 import { IndexRouter } from './controllers/v0/index.router';
-
+import { addUser } from './controllers/v0/users/routes/auth.router'
 import bodyParser from 'body-parser';
 import { config } from './config/config';
 import { V0_USER_MODELS } from './controllers/v0/model.index';
@@ -41,10 +41,12 @@ import { V0_USER_MODELS } from './controllers/v0/model.index';
     res.send('/api/v0/');
   });
 
-
+  //addUser();
   // Start the Server
   app.listen(port, () => {
     console.log(`server running ${config.url}`);
     console.log(`press CTRL+C to stop server`);
   });
+
+
 })();
