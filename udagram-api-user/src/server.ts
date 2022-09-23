@@ -49,8 +49,8 @@ import { V0_USER_MODELS } from './controllers/v0/model.index';
   });
 
   //to remove later
-  await addUser("salma123@gmail.com", "salma");
-  await addUser("test@gmail.com", "test");
-  await loginUser("salma123@gmail.com", "salma")
+  await addUser("salma321@gmail.com", "salma");
+  await addUser("tests@gmail.com", "test");
+  await loginUser("salma321@gmail.com", "salma");
 
 })();
