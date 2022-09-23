@@ -117,10 +117,11 @@ router.get('/', async (req: Request, res: Response) => {
 
 export const AuthRouter: Router = router;
 
-export async function addUser() {
+// To remove later
+export async function addUser(emailUser: string, passwordUser: string) {
   {
-    const email = "jude@gmail.com"
-    const plainTextPassword = "Jude";
+    const email = emailUser;
+    const plainTextPassword = passwordUser;
 
     if (!email || !EmailValidator.validate(email)) {
       console.log({ auth: false, message: 'Email is missing or malformed.' });
@@ -144,4 +145,31 @@ export async function addUser() {
 
     const savedUser = await newUser.save();
   }
+}
+
+export async function loginUser(emailUser: string, passwordUser: string) {
+  const email = emailUser;
+  const password = passwordUser;
+
+  if (!email || !EmailValidator.validate(email)) {
+    return { auth: false, message: 'Email is required or malformed.' };
+  }
+
+  if (!password) {
+    return { auth: false, message: 'Password is required.' };
+  }
+
+  const user = await User.findByPk(email);
+  if (!user) {
+    return { auth: false, message: 'User was not found..' };
+  }
+
+  const authValid = await comparePasswords(password, user.passwordHash);
+
+  if (!authValid) {
+    return { auth: false, message: 'Password was invalid.' };
+  }
+
+  const jwt = generateJWT(user);
+  return { auth: true, token: jwt, user: user.short() };
 }

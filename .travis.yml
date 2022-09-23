@@ -15,10 +15,10 @@ before_script:
 
 script:
   - docker --version # print the version for logging
-  - docker build -t reverseproxy ./udagram-reverseproxy
-  - docker tag reverseproxy ohansck/reverseproxy:v4
+  - docker build -t udagram-api-user ./udagram-api-user
+  - docker tag udagram-api-user ohansck/udagram-api-user:s1
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-  - docker push ohansck/reverseproxy:v4
+  - docker push ohansck/udagram-api-user:s1
 
 after_success:
   - echo "Done"
