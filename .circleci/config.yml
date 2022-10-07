@@ -1,21 +1,73 @@
 # This config is equivalent to both the '.circleci/extended/orb-free.yml' and the base '.circleci/config.yml'
 version: 2.1
+commands:
+    install_ansible:
+      description: Install ansible
+      steps:
+        - run: 
+            name: Install ansible
+            command: |
+              sudo apt update
+              sudo apt install software-properties-common
+              sudo add-apt-repository --yes --update ppa:ansible/ansible 
+              sudo apt install ansible -y
 
-# Orbs are reusable packages of CircleCI configuration that you may share across projects, enabling you to create encapsulated, parameterized commands, jobs, and executors that can be used across multiple projects.
-# See: https://circleci.com/docs/2.0/orb-intro/
-orbs:
-  node: circleci/node@4.7
+    install_nodejs:
+      description: Install nodejs 13
+      steps:
+        - run: 
+            name: Install ansible 13
+            command: |
+              curl --insecure -fsSL https://deb.nodesource.com/setup_13.x | sudo -E bash -        
+              sudo apt install nodejs -y
 
-# Invoke jobs via workflows
-# See: https://circleci.com/docs/2.0/configuration-reference/#workflows
+    login-to-docker:
+      description: login-to-docker
+      steps:
+        - run: 
+            name: login-to-docker
+            command: |
+               echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+               docker --version # print the version for logging
+
+    build-docker-images:
+      description: build-docker-images
+      steps:
+        - run: 
+            name: build-docker-images
+            command: |
+              docker build -t udagram-api-feed ./udagram-api-feed
+              docker build -t udagram-api-user ./udagram-api-user
+              docker build -t udagram-frontend ./udagram-frontend
+              docker build -t reverseproxy ./udagram-reverseproxy
+              docker tag udagram-api-feed fixedsols/udagram-api-feed:v4
+              docker tag udagram-api-user fixedsols/udagram-api-user:v4
+              docker tag udagram-frontend fixedsols/udagram-frontend:v4
+              docker tag reverseproxy fixedsols/reverseproxy:v4
+
+    push-docker-images:
+      description: push-docker-images
+      steps:
+        - run: 
+            name: push-docker-images
+            command: |
+              docker push fixedsols/udagram-api-feed:v4
+              docker push fixedsols/udagram-api-user:v4
+              docker push fixedsols/udagram-frontend:v4
+              docker push fixedsols/reverseproxy:v4
+
+jobs:
+  build-docker-images:
+    docker:
+      - image: docker:17.05.0-ce-git
+    steps:
+      - checkout
+      - install_nodejs
+      - login-to-docker
+      - build-docker-images
+      - push-docker-images
+
 workflows:
-  sample: # This is the name of the workflow, feel free to change it to better match your workflow.
-    # Inside the workflow, you define the jobs you want to run.
+  create-app:
     jobs:
-      - node/test:
-          # This is the node version to use for the `cimg/node` tag
-          # Relevant tags can be found on the CircleCI Developer Hub
-          # https://circleci.com/developer/images/image/cimg/node
-          version: '16.10'
-          # If you are using yarn, change the line below from "npm" to "yarn"
-          pkg-manager: npm
+      - build-docker-images
