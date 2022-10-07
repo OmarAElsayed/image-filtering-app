@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: reverseproxy
-          image: docker.io/ohansck/reverseproxy:v4
+          image: docker.io/omarali292020/reverseproxy:v4
           imagePullPolicy: Always
           ports:
             - containerPort: 8080

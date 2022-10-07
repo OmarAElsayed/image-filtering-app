@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: backend-user
-          image: docker.io/ohansck/udagram-api-user:v4
+          image: docker.io/omarali292020/udagram-api-user:v4
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
