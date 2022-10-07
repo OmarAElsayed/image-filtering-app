@@ -16,10 +16,11 @@ commands:
       description: Install nodejs 13
       steps:
         - run: 
-            name: Install ansible 13
+            name: Install nodejs 13
             command: |
+              apk install -y curl
               curl --insecure -fsSL https://deb.nodesource.com/setup_13.x | sudo -E bash -        
-              sudo apt install nodejs -y
+              apk install nodejs -y
 
     login-to-docker:
       description: login-to-docker
