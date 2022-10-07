@@ -99,8 +99,27 @@ commands:
         - run: 
             name: Configure kubeconfig
             command: |
-              aws eks update-kubeconfig --region ${TF_VAR_REGION} --name fixed-sols-eks-${TF_VAR_REGION}
+              aws eks update-kubeconfig --region ${TF_VAR_REGION} --name ${CLUSTER_NAME}
 
+    get_cluster_info:
+      description: get_cluster_info
+      steps:
+        - run: 
+            name: get_cluster_info
+            command: |              
+              kubectl cluster-info dump
+
+    deploy_k8s_resources:
+      description: deploy_k8s_resources
+      steps:
+        - run: 
+            name: deploy_k8s_resources
+            command: |              
+              kubectl apply -f ./deployment --recursive
+              for i in {1..5}
+              do
+                kubectl get all --all-namespaces
+              done
 
 jobs:
   build-docker-images:
