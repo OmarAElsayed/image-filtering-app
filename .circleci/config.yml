@@ -1,26 +1,50 @@
 # This config is equivalent to both the '.circleci/extended/orb-free.yml' and the base '.circleci/config.yml'
 version: 2.1
 commands:
-    install_ansible:
-      description: Install ansible
+    install_aws_cli:
+      description: Install aws cli v2
       steps:
         - run: 
-            name: Install ansible
+            name: Install aws cli v2
             command: |
-              sudo apt update
-              sudo apt install software-properties-common
-              sudo add-apt-repository --yes --update ppa:ansible/ansible 
-              sudo apt install ansible -y
+              curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+              unzip awscliv2.zip
+              sudo ./aws/install
 
-    install_nodejs:
-      description: Install nodejs 13
+    install_aws_iam_auth:
+      description: Installing or updating the latest version of aws-iam-authenticator
       steps:
         - run: 
-            name: Install nodejs 13
+            name: Installing or updating the latest version of aws-iam-authenticator
             command: |
-              apk install -y curl
-              curl --insecure -fsSL https://deb.nodesource.com/setup_13.x | sudo -E bash -        
-              apk install nodejs -y
+              mkdir -p ~/downloads
+              curl -o ~/downloads/aws-iam-authenticator https://s3.us-west-2.amazonaws.com/amazon-eks/1.21.2/2021-07-05/bin/linux/amd64/aws-iam-authenticator
+              chmod +x  ~/downloads/aws-iam-authenticator
+              mkdir -p $HOME/bin && cp  ~/downloads/aws-iam-authenticator $HOME/bin/aws-iam-authenticator && export PATH=$PATH:$HOME/bin
+              echo 'export PATH=$PATH:$HOME/bin' >> ~/.bashrc
+              aws-iam-authenticator help
+
+    install_kubectl:
+      description: Installing Kubectl
+      steps:
+        - run: 
+            name: Installing Kubectl
+            command: |
+              sudo apt-get install -y apt-transport-https
+              sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
+              echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+              sudo apt-get update
+              sudo apt-get install -y kubectl
+
+    install_helm:
+      description: Installing Helm
+      steps:
+        - run: 
+            name: Installing Helm
+            command: |
+              mkdir -p ~/downloads
+              curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | /bin/bash
+              helm version
 
     login-to-docker:
       description: login-to-docker
@@ -57,6 +81,27 @@ commands:
               docker push omarali292020/udagram-frontend:v4
               docker push omarali292020/reverseproxy:v4
 
+    login-to-aws:
+      description: Login to AWS
+      steps:
+        - run: 
+            name: Login to AWS
+            command: |
+              aws configure set AWS_ACCESS_KEY_ID ${TF_VAR_AWS_ACCESS_KEY_ID}
+              aws configure set AWS_SECRET_ACCESS_KEY ${TF_VAR_AWS_SECRET_ACCESS_KEY}
+              aws configure set region ${TF_VAR_REGION}
+              aws configure list
+              aws sts get-caller-identity   
+
+    configure_kubectl:
+      description: Configure kubeconfig
+      steps:
+        - run: 
+            name: Configure kubeconfig
+            command: |
+              aws eks update-kubeconfig --region ${TF_VAR_REGION} --name fixed-sols-eks-${TF_VAR_REGION}
+
+
 jobs:
   build-docker-images:
     docker:
@@ -65,9 +110,16 @@ jobs:
       - setup_remote_docker:
           version: 20.10.14
       - checkout
+      - install_aws_cli
+      - install_aws_iam_auth
+      - install_kubectl
+      - install_helm
       - login-to-docker
       - build-docker-images
       - push-docker-images
+      - login-to-aws
+      - configure_kubectl
+      
 
 workflows:
   create-app:

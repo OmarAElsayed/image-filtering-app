@@ -3,7 +3,7 @@ kind: ConfigMap
 metadata:
   name: env-configmap
 data:
-  AWS_BUCKET: udagramkingsley
+  AWS_BUCKET: bufatma
   AWS_REGION: us-east-1
   AWS_PROFILE: default
   JWT_SECRET: testing
