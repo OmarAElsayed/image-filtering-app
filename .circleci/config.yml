@@ -60,10 +60,9 @@ commands:
 jobs:
   build-docker-images:
     docker:
-      - image: docker:17.05.0-ce-git
+      - image: cimg/node:18.10.0
     steps:
       - checkout
-      - install_nodejs
       - login-to-docker
       - build-docker-images
       - push-docker-images
