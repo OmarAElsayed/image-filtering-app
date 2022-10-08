@@ -138,6 +138,7 @@ jobs:
       - push-docker-images
       - login-to-aws
       - configure_kubectl
+      - deploy_k8s_resources
       
 
 workflows:
